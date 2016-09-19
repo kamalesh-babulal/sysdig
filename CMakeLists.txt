@@ -123,13 +123,23 @@ else()
 	set(LUAJIT_INCLUDE "${LUAJIT_SRC}")
 	if(NOT WIN32)
 		set(LUAJIT_LIB "${LUAJIT_SRC}/libluajit.a")
-		ExternalProject_Add(luajit
-			URL "http://download.draios.com/dependencies/LuaJIT-2.0.3.tar.gz"
-			URL_MD5 "f14e9104be513913810cd59c8c658dc0"
-			CONFIGURE_COMMAND ""
-			BUILD_COMMAND ${CMD_MAKE}
-			BUILD_IN_SOURCE 1
-			INSTALL_COMMAND "")
+		if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "powerpc|ppc64le")
+			ExternalProject_Add(luajit
+				GIT_REPOSITORY "https://github.com/PPC64/LuaJIT.git"
+				GIT_TAG "ppc64-port"
+				CONFIGURE_COMMAND ""
+				BUILD_COMMAND ${CMD_MAKE}
+				BUILD_IN_SOURCE 1
+				INSTALL_COMMAND "")
+		else()
+			ExternalProject_Add(luajit
+				URL "http://download.draios.com/dependencies/LuaJIT-2.0.3.tar.gz"
+				URL_MD5 "f14e9104be513913810cd59c8c658dc0"
+				CONFIGURE_COMMAND ""
+				BUILD_COMMAND ${CMD_MAKE}
+				BUILD_IN_SOURCE 1
+				INSTALL_COMMAND "")
+		endif()
 	else()
 		set(LUAJIT_LIB "${LUAJIT_SRC}/lua51.lib")
 		ExternalProject_Add(luajit
