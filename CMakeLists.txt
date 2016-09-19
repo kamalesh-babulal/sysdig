@@ -124,8 +124,8 @@ else()
 	if(NOT WIN32)
 		set(LUAJIT_LIB "${LUAJIT_SRC}/libluajit.a")
 		ExternalProject_Add(luajit
-			GIT_REPOSITORY "https://github.com/PPC64/LuaJIT.git" 
-			GIT_TAG "ppc64-port"
+			URL "http://download.draios.com/dependencies/LuaJIT-2.0.3.tar.gz"
+			URL_MD5 "f14e9104be513913810cd59c8c658dc0"
 			CONFIGURE_COMMAND ""
 			BUILD_COMMAND ${CMD_MAKE}
 			BUILD_IN_SOURCE 1
@@ -133,8 +133,8 @@ else()
 	else()
 		set(LUAJIT_LIB "${LUAJIT_SRC}/lua51.lib")
 		ExternalProject_Add(luajit
-			GIT_REPOSITORY "https://github.com/PPC64/LuaJIT.git" 
-			GIT_TAG "ppc64-port"
+			URL "http://download.draios.com/dependencies/LuaJIT-2.0.3.tar.gz"
+			URL_MD5 "f14e9104be513913810cd59c8c658dc0"
 			CONFIGURE_COMMAND ""
 			BUILD_COMMAND msvcbuild.bat
 			BINARY_DIR "${LUAJIT_SRC}"
