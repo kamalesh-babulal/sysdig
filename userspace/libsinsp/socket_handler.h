@@ -390,27 +390,31 @@ public:
 		return true;
 
 	connection_error:
+		if((errno == EAGAIN) || (errno == EINPROGRESS))
 		{
-			error_desc = "error";
+			return false;
 		}
+		error_desc = "error";
 
 	connection_closed:
+		if((errno == EAGAIN) || (errno == EINPROGRESS))
 		{
-			if(error_desc.empty())
+			return false;
+		}
+		if(error_desc.empty())
+		{
+			error_desc = "closed";
+			m_connected = false;
+		}
+		g_logger.log("Socket handler (" + m_id + ") connection [" + m_url.to_string(false) + "] " +
+					 error_desc + " (" + (errno ? strerror(errno) : "no error") + ")",
+					 sinsp_logger::SEV_ERROR);
+		if(m_url.is_secure())
+		{
+			std::string ssl_err = ssl_errors();
+			if(!ssl_err.empty())
 			{
-				error_desc = "closed";
-				m_connected = false;
-			}
-			g_logger.log("Socket handler (" + m_id + ") connection [" + m_url.to_string(false) + "] " +
-						 error_desc + " (" + (errno ? strerror(errno) : "no error") + ")",
-						 sinsp_logger::SEV_ERROR);
-			if(m_url.is_secure())
-			{
-				std::string ssl_err = ssl_errors();
-				if(!ssl_err.empty())
-				{
-					g_logger.log(ssl_err, sinsp_logger::SEV_ERROR);
-				}
+				g_logger.log(ssl_err, sinsp_logger::SEV_ERROR);
 			}
 		}
 		cleanup();
@@ -514,6 +518,9 @@ public:
 		return nullptr;
 	}
 
+	// connection is non-blocking and a socket
+	// should not be polled until it is connected
+	// this flag indicates readiness to be polled
 	bool is_enabled() const
 	{
 		return m_enabled;
@@ -1278,6 +1285,9 @@ private:
 			}
 			m_socket = -1;
 		}
+		m_enabled = false;
+		m_connected = false;
+		m_connecting = false;
 	}
 
 	bool dns_cleanup(struct gaicb** dns_reqs)
